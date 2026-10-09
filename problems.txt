@@ -1,0 +1,228 @@
+# VitaScan — test log (before vs after fix)
+
+Issues found during manual testing, with the same inputs rescored after
+retraining (raw-value scaling bundles + SMOTE) and UI/API fixes.
+
+Root causes fixed:
+- Models were trained on StandardScaler features, but the app sent raw values
+- Stroke / hepatitis class imbalance (SMOTE on train split)
+- Hepatitis form used wrong lab units (ALB g/L, CHOL mmol/L, CREA µmol/L, etc.)
+- UI sent broken one-hots (residence/smoking) and mixed fields across diseases
+
+================================================================================
+HEART — LOW RISK
+================================================================================
+
+--- Case 1 ---
+BEFORE: Negative (Low Risk) — Probability: 0.195
+AFTER:  Low Risk — Probability: 0.013
+{
+  "Age": 29, "Sex": 1, "RestingBP": 118, "Cholesterol": 165, "FastingBS": 0,
+  "MaxHR": 170, "Oldpeak": 0.2,
+  "ChestPainType_ATA": 1, "ChestPainType_NAP": 0, "ChestPainType_TA": 0,
+  "RestingECG_Normal": 1, "RestingECG_ST": 0, "ExerciseAngina_Y": 0,
+  "ST_Slope_Flat": 0, "ST_Slope_Up": 1
+}
+
+--- Case 2 ---
+BEFORE: Negative (Low Risk) — Probability: 0.16
+AFTER:  Low Risk — Probability: 0.026
+{
+  "Age": 35, "Sex": 0, "RestingBP": 110, "Cholesterol": 150, "FastingBS": 0,
+  "MaxHR": 160, "Oldpeak": 0.1,
+  "ChestPainType_ATA": 0, "ChestPainType_NAP": 1, "ChestPainType_TA": 0,
+  "RestingECG_Normal": 1, "RestingECG_ST": 0, "ExerciseAngina_Y": 0,
+  "ST_Slope_Flat": 0, "ST_Slope_Up": 1
+}
+
+--- Case 3 ---
+BEFORE: Negative (Low Risk) — Probability: 0.19
+AFTER:  Low Risk — Probability: 0.013
+{
+  "Age": 40, "Sex": 1, "RestingBP": 120, "Cholesterol": 180, "FastingBS": 0,
+  "MaxHR": 158, "Oldpeak": 0.0,
+  "ChestPainType_ATA": 1, "ChestPainType_NAP": 0, "ChestPainType_TA": 0,
+  "RestingECG_Normal": 1, "RestingECG_ST": 0, "ExerciseAngina_Y": 0,
+  "ST_Slope_Flat": 0, "ST_Slope_Up": 1
+}
+
+--- Case 4 ---
+BEFORE: Negative (Low Risk) — Probability: 0.17
+AFTER:  Low Risk — Probability: 0.016
+{
+  "Age": 31, "Sex": 0, "RestingBP": 115, "Cholesterol": 170, "FastingBS": 0,
+  "MaxHR": 165, "Oldpeak": 0.3,
+  "ChestPainType_ATA": 0, "ChestPainType_NAP": 1, "ChestPainType_TA": 0,
+  "RestingECG_Normal": 1, "RestingECG_ST": 0, "ExerciseAngina_Y": 0,
+  "ST_Slope_Flat": 0, "ST_Slope_Up": 1
+}
+
+--- Case 5 ---
+BEFORE: Negative (Low Risk) — Probability: 0.19
+AFTER:  Low Risk — Probability: 0.023
+{
+  "Age": 28, "Sex": 1, "RestingBP": 112, "Cholesterol": 160, "FastingBS": 0,
+  "MaxHR": 172, "Oldpeak": 0.0,
+  "ChestPainType_ATA": 1, "ChestPainType_NAP": 0, "ChestPainType_TA": 0,
+  "RestingECG_Normal": 1, "RestingECG_ST": 0, "ExerciseAngina_Y": 0,
+  "ST_Slope_Flat": 0, "ST_Slope_Up": 1
+}
+
+================================================================================
+HEART — HIGH RISK (was under-confident)
+================================================================================
+
+--- Case 1 ---
+BEFORE: Positive (High Risk) — Probability: 0.6   (under-confident)
+AFTER:  High Risk — Probability: 0.943
+{
+  "Age": 67, "Sex": 1, "RestingBP": 150, "Cholesterol": 256, "FastingBS": 1,
+  "MaxHR": 120, "Oldpeak": 2.8,
+  "ChestPainType_ATA": 0, "ChestPainType_NAP": 0, "ChestPainType_TA": 1,
+  "RestingECG_Normal": 0, "RestingECG_ST": 1, "ExerciseAngina_Y": 1,
+  "ST_Slope_Flat": 1, "ST_Slope_Up": 0
+}
+
+--- Case 2 ---
+BEFORE: Positive (High Risk) — Probability: 0.635
+AFTER:  High Risk — Probability: 0.824
+{
+  "Age": 72, "Sex": 0, "RestingBP": 160, "Cholesterol": 290, "FastingBS": 1,
+  "MaxHR": 108, "Oldpeak": 3.5,
+  "ChestPainType_ATA": 0, "ChestPainType_NAP": 0, "ChestPainType_TA": 1,
+  "RestingECG_Normal": 0, "RestingECG_ST": 1, "ExerciseAngina_Y": 1,
+  "ST_Slope_Flat": 1, "ST_Slope_Up": 0
+}
+
+--- Case 3 ---
+BEFORE: Positive (High Risk) — Probability: 0.515
+AFTER:  High Risk — Probability: 0.945
+{
+  "Age": 60, "Sex": 1, "RestingBP": 145, "Cholesterol": 270, "FastingBS": 1,
+  "MaxHR": 105, "Oldpeak": 2.2,
+  "ChestPainType_ATA": 0, "ChestPainType_NAP": 1, "ChestPainType_TA": 0,
+  "RestingECG_Normal": 0, "RestingECG_ST": 1, "ExerciseAngina_Y": 1,
+  "ST_Slope_Flat": 1, "ST_Slope_Up": 0
+}
+
+--- Case 4 ---
+BEFORE: Positive (High Risk) — Probability: 0.59
+AFTER:  High Risk — Probability: 0.816
+{
+  "Age": 75, "Sex": 1, "RestingBP": 170, "Cholesterol": 310, "FastingBS": 1,
+  "MaxHR": 98, "Oldpeak": 4.0,
+  "ChestPainType_ATA": 0, "ChestPainType_NAP": 0, "ChestPainType_TA": 1,
+  "RestingECG_Normal": 0, "RestingECG_ST": 1, "ExerciseAngina_Y": 1,
+  "ST_Slope_Flat": 1, "ST_Slope_Up": 0
+}
+
+--- Case 5 ---
+BEFORE: Positive (High Risk) — Probability: 0.615
+AFTER:  High Risk — Probability: 0.816
+{
+  "Age": 62, "Sex": 0, "RestingBP": 155, "Cholesterol": 260, "FastingBS": 1,
+  "MaxHR": 110, "Oldpeak": 3.0,
+  "ChestPainType_ATA": 0, "ChestPainType_NAP": 1, "ChestPainType_TA": 0,
+  "RestingECG_Normal": 0, "RestingECG_ST": 1, "ExerciseAngina_Y": 1,
+  "ST_Slope_Flat": 1, "ST_Slope_Up": 0
+}
+
+================================================================================
+STROKE — LOW RISK (some cases looked biased / unstable)
+================================================================================
+
+--- Case 1 ---
+BEFORE: Negative (Low Risk) — Probability: 0.244
+AFTER:  Low Risk — Probability: 0.006
+{
+  "age": 30, "hypertension": 0, "heart_disease": 0, "ever_married": 0,
+  "avg_glucose_level": 82, "bmi": 21.5,
+  "gender_Male": 1, "gender_Other": 0,
+  "work_type_Govt_job": 0, "work_type_Never_worked": 0, "work_type_Private": 1,
+  "work_type_Self-employed": 0, "work_type_children": 0,
+  "Residence_type_Rural": 0, "Residence_type_Urban": 1,
+  "smoking_status_Unknown": 0, "smoking_status_formerly smoked": 0,
+  "smoking_status_never smoked": 1, "smoking_status_smokes": 0
+}
+
+--- Case 2 ---
+BEFORE: Negative (Low Risk) — Probability: 0.066  (biased / unstable)
+AFTER:  Low Risk — Probability: 0.001
+{
+  "age": 29, "hypertension": 0, "heart_disease": 0, "ever_married": 0,
+  "avg_glucose_level": 95, "bmi": 20.8,
+  "gender_Male": 1, "gender_Other": 0,
+  "work_type_Govt_job": 0, "work_type_Never_worked": 1, "work_type_Private": 0,
+  "work_type_Self-employed": 0, "work_type_children": 0,
+  "Residence_type_Rural": 0, "Residence_type_Urban": 1,
+  "smoking_status_Unknown": 1, "smoking_status_formerly smoked": 0,
+  "smoking_status_never smoked": 0, "smoking_status_smokes": 0
+}
+
+--- Case 3 ---
+BEFORE: Negative (Low Risk) — Probability: 0.052  (biased / unstable)
+AFTER:  Low Risk — Probability: 0.002
+{
+  "age": 33, "hypertension": 0, "heart_disease": 0, "ever_married": 1,
+  "avg_glucose_level": 87, "bmi": 23.0,
+  "gender_Male": 0, "gender_Other": 0,
+  "work_type_Govt_job": 0, "work_type_Never_worked": 0, "work_type_Private": 1,
+  "work_type_Self-employed": 0, "work_type_children": 0,
+  "Residence_type_Rural": 1, "Residence_type_Urban": 0,
+  "smoking_status_Unknown": 0, "smoking_status_formerly smoked": 0,
+  "smoking_status_never smoked": 1, "smoking_status_smokes": 0
+}
+
+--- Case 4 ---
+BEFORE: Negative (Low Risk) — Probability: 0.389
+AFTER:  Low Risk — Probability: 0.002
+{
+  "age": 37, "hypertension": 0, "heart_disease": 0, "ever_married": 1,
+  "avg_glucose_level": 92, "bmi": 24,
+  "gender_Male": 1, "gender_Other": 0,
+  "work_type_Govt_job": 0, "work_type_Never_worked": 0, "work_type_Private": 1,
+  "work_type_Self-employed": 0, "work_type_children": 0,
+  "Residence_type_Rural": 0, "Residence_type_Urban": 1,
+  "smoking_status_Unknown": 0, "smoking_status_formerly smoked": 0,
+  "smoking_status_never smoked": 1, "smoking_status_smokes": 0
+}
+
+================================================================================
+HEPATITIS — HIGH RISK (original inputs used wrong lab units)
+================================================================================
+NOTE: The original form placeholders used wrong units (ALB ~1–10, CHOL ~100–400,
+CREA ~0–5). Dataset units are ALB/PROT g/L, enzymes U/L, CHOL mmol/L, CREA µmol/L.
+Those wrong-unit payloads are preserved below for history; corrected-unit
+equivalents are also listed.
+
+--- Case 1 (wrong units from original UI) ---
+BEFORE: Positive (High Risk) — Probability: 0.94  (biased / unit mismatch)
+AFTER:  Low Risk — Probability: 0.000  (same raw numbers; now correctly scaled)
+{
+  "Age": 55, "Sex": 1, "ALB": 2.4, "ALP": 180, "ALT": 150, "AST": 200,
+  "BIL": 3.5, "CHE": 4.0, "CHOL": 240, "CREA": 1.4, "GGT": 160, "PROT": 5.8
+}
+
+--- Case 2 (wrong units from original UI) ---
+BEFORE: Positive (High Risk) — Probability: 0.943  (biased / unit mismatch)
+AFTER:  Low Risk — Probability: 0.000
+{
+  "Age": 62, "Sex": 0, "ALB": 2.2, "ALP": 200, "ALT": 180, "AST": 230,
+  "BIL": 4.0, "CHE": 3.8, "CHOL": 250, "CREA": 1.6, "GGT": 180, "PROT": 5.5
+}
+
+--- Corrected high-risk equivalent (proper units) ---
+BEFORE: n/a (not in original log)
+AFTER:  High Risk — Probability: 1.000
+{
+  "Age": 55, "Sex": 1, "ALB": 28, "ALP": 180, "ALT": 150, "AST": 200,
+  "BIL": 35, "CHE": 4.0, "CHOL": 3.8, "CREA": 110, "GGT": 160, "PROT": 58
+}
+
+--- Corrected low-risk control (proper units) ---
+BEFORE: n/a
+AFTER:  Low Risk — Probability: 0.000
+{
+  "Age": 35, "Sex": 1, "ALB": 42, "ALP": 65, "ALT": 22, "AST": 24,
+  "BIL": 8, "CHE": 8.5, "CHOL": 5.2, "CREA": 75, "GGT": 22, "PROT": 72
+}

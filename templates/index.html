@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VitaScan — Disease Risk Screening</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg0: #0b1c1f;
+      --bg1: #123038;
+      --ink: #102226;
+      --muted: #5a7076;
+      --line: #d5e2e5;
+      --panel: rgba(255, 252, 248, 0.92);
+      --accent: #0f8a7a;
+      --accent-deep: #0a5f54;
+      --warn: #c45c26;
+      --ok: #1f7a4c;
+      --danger: #b42318;
+      --shadow: 0 24px 60px rgba(11, 40, 44, 0.18);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Manrope", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #1f6f6a 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #c9783a 0%, transparent 45%),
+        linear-gradient(160deg, #0b1c1f 0%, #123038 42%, #e8f1f0 42.1%, #f3f7f6 100%);
+    }
+
+    .shell {
+      width: min(1120px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 1.25rem 0 3rem;
+    }
+
+    header.top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.5rem 0 1.5rem;
+      animation: rise 0.7s ease both;
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 0.65rem;
+      color: #f4faf9;
+      text-decoration: none;
+    }
+    .brand strong {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(2rem, 4vw, 2.7rem);
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+    .brand span {
+      font-size: 0.85rem;
+      opacity: 0.75;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .pill {
+      color: #d7ebe8;
+      border: 1px solid rgba(215, 235, 232, 0.28);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.8rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.5rem;
+      align-items: end;
+      min-height: min(58vh, 520px);
+      margin-bottom: 1.75rem;
+      animation: rise 0.85s ease 0.05s both;
+    }
+
+    .hero-copy h1 {
+      margin: 0 0 0.75rem;
+      color: #f7fcfb;
+      font-family: "Instrument Serif", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+      line-height: 0.98;
+      max-width: 12ch;
+    }
+    .hero-copy p {
+      margin: 0 0 1.4rem;
+      color: #c9dedb;
+      font-size: 1.05rem;
+      line-height: 1.55;
+      max-width: 36ch;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 0.85rem 1.35rem;
+      font: inherit;
+      font-weight: 600;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 10px 28px rgba(15, 138, 122, 0.35);
+    }
+    .btn-primary:hover { background: var(--accent-deep); }
+    .btn-ghost {
+      background: transparent;
+      color: #e7f4f2;
+      border: 1px solid rgba(231, 244, 242, 0.35);
+    }
+    .btn-secondary {
+      background: #e7f0ef;
+      color: var(--ink);
+    }
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .hero-visual {
+      position: relative;
+      height: 100%;
+      min-height: 280px;
+      border-radius: 28px;
+      overflow: hidden;
+      background:
+        linear-gradient(145deg, rgba(15, 138, 122, 0.35), rgba(11, 28, 31, 0.15)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%230f8a7a'/%3E%3Cstop offset='1' stop-color='%230b1c1f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='600' fill='url(%23g)'/%3E%3Cpath d='M0 380 C120 320 180 460 300 400 S480 280 600 340 740 420 800 360 V600 H0Z' fill='%23e8f1f0' opacity='.18'/%3E%3Cpath d='M40 300h40l20-60 30 120 25-80 20 40h40' stroke='%23f4faf9' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='620' cy='180' r='70' fill='none' stroke='%23f4faf9' stroke-width='3' opacity='.45'/%3E%3Ccircle cx='620' cy='180' r='40' fill='none' stroke='%23f4faf9' stroke-width='2' opacity='.35'/%3E%3C/svg%3E") center/cover;
+      box-shadow: var(--shadow);
+      animation: floaty 6s ease-in-out infinite;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      padding: 1.35rem;
+      animation: rise 0.8s ease 0.12s both;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 2rem;
+      font-weight: 400;
+    }
+    .section-head p {
+      margin: 0.2rem 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .disease-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .disease-card {
+      text-align: left;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 16px;
+      padding: 1rem 1rem 1.1rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .disease-card:hover {
+      transform: translateY(-2px);
+      border-color: #9fc4bf;
+    }
+    .disease-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 138, 122, 0.15);
+    }
+    .disease-card .emoji {
+      font-size: 1.35rem;
+      margin-bottom: 0.45rem;
+    }
+    .disease-card h3 {
+      margin: 0 0 0.3rem;
+      font-size: 1.05rem;
+    }
+    .disease-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.4;
+    }
+
+    .form-wrap { display: none; }
+    .form-wrap.visible { display: block; animation: rise 0.45s ease both; }
+
+    .form-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .form-meta h3 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+    .form-meta small {
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem 1rem;
+    }
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .field.full { grid-column: 1 / -1; }
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #35545a;
+      letter-spacing: 0.01em;
+    }
+    label .hint {
+      font-weight: 500;
+      color: var(--muted);
+    }
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 12px;
+      padding: 0.72rem 0.85rem;
+      font: inherit;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 138, 122, 0.12);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 1.2rem;
+    }
+
+    .result {
+      display: none;
+      margin-top: 1.1rem;
+      border-radius: 16px;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--line);
+      background: #f7fbfa;
+    }
+    .result.show { display: block; animation: rise 0.4s ease both; }
+    .result.low {
+      border-color: #9ed0b4;
+      background: linear-gradient(135deg, #eefaf3, #f7fbfa);
+    }
+    .result.high {
+      border-color: #f0b4ae;
+      background: linear-gradient(135deg, #fff1ef, #fdf7f6);
+    }
+    .result h4 {
+      margin: 0 0 0.35rem;
+      font-size: 1.05rem;
+    }
+    .result p { margin: 0; color: var(--muted); line-height: 1.5; }
+    .meter {
+      margin-top: 0.85rem;
+      height: 10px;
+      border-radius: 999px;
+      background: #dfeaea;
+      overflow: hidden;
+    }
+    .meter > i {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--ok), #d4a017, var(--danger));
+      transition: width 0.6s ease;
+    }
+
+    .disclaimer {
+      margin-top: 1.25rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    footer {
+      margin-top: 2rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-visual { min-height: 220px; }
+      .disease-grid { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      header.top { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <a class="brand" href="#" onclick="resetHome(); return false;">
+        <strong>VitaScan</strong>
+        <span>Risk screening</span>
+      </a>
+      <div class="pill">Heart · Stroke · Hepatitis</div>
+    </header>
+
+    <section class="hero" id="hero">
+      <div class="hero-copy">
+        <h1>Clear risk signals from your clinical inputs.</h1>
+        <p>Pick a condition, enter the values your model was trained on, and get a calibrated low/high risk estimate in seconds.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="document.getElementById('workspace').scrollIntoView({behavior:'smooth'})">Start screening</button>
+          <button class="btn btn-ghost" onclick="fillDemo()">Load demo values</button>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true"></div>
+    </section>
+
+    <section class="panel" id="workspace">
+      <div class="section-head">
+        <div>
+          <h2>Choose a screen</h2>
+          <p>Only the fields needed for the selected model are shown.</p>
+        </div>
+      </div>
+
+      <div class="disease-grid" role="tablist">
+        <button type="button" class="disease-card active" data-disease="heart" onclick="selectDisease('heart')">
+          <div class="emoji">🫀</div>
+          <h3>Heart disease</h3>
+          <p>BP, cholesterol, ECG pattern, exercise angina, ST slope.</p>
+        </button>
+        <button type="button" class="disease-card" data-disease="stroke" onclick="selectDisease('stroke')">
+          <div class="emoji">🧠</div>
+          <h3>Stroke</h3>
+          <p>Age, glucose, BMI, vascular history, lifestyle factors.</p>
+        </button>
+        <button type="button" class="disease-card" data-disease="hepatitis" onclick="selectDisease('hepatitis')">
+          <div class="emoji">🧬</div>
+          <h3>Hepatitis</h3>
+          <p>Liver panel labs (ALB, ALT, AST, BIL, GGT, and more).</p>
+        </button>
+      </div>
+
+      <!-- HEART -->
+      <form class="form-wrap visible" id="form-heart" onsubmit="return false;">
+        <div class="form-meta">
+          <div>
+            <h3>Heart disease inputs</h3>
+            <small>UCI Heart Failure / Cleveland-style clinical features</small>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="field"><label>Age <span class="hint">(years)</span></label><input name="Age" type="number" min="18" max="100" step="1" required placeholder="e.g. 54" /></div>
+          <div class="field"><label>Sex</label>
+            <select name="Sex" required>
+              <option value="">Select</option>
+              <option value="1">Male</option>
+              <option value="0">Female</option>
+            </select>
+          </div>
+          <div class="field"><label>Resting BP <span class="hint">(mmHg)</span></label><input name="RestingBP" type="number" min="80" max="220" step="1" required placeholder="e.g. 130" /></div>
+          <div class="field"><label>Cholesterol <span class="hint">(mg/dL)</span></label><input name="Cholesterol" type="number" min="80" max="600" step="1" required placeholder="e.g. 220" /></div>
+          <div class="field"><label>Fasting blood sugar &gt; 120 mg/dL</label>
+            <select name="FastingBS" required>
+              <option value="">Select</option>
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+          <div class="field"><label>Max heart rate</label><input name="MaxHR" type="number" min="60" max="220" step="1" required placeholder="e.g. 150" /></div>
+          <div class="field"><label>Oldpeak <span class="hint">(ST depression)</span></label><input name="Oldpeak" type="number" min="0" max="7" step="0.1" required placeholder="e.g. 1.2" /></div>
+          <div class="field"><label>Chest pain type</label>
+            <select name="ChestPainType" required>
+              <option value="">Select</option>
+              <option value="ASY">ASY — asymptomatic</option>
+              <option value="ATA">ATA — atypical angina</option>
+              <option value="NAP">NAP — non-anginal</option>
+              <option value="TA">TA — typical angina</option>
+            </select>
+          </div>
+          <div class="field"><label>Resting ECG</label>
+            <select name="RestingECG" required>
+              <option value="">Select</option>
+              <option value="Normal">Normal</option>
+              <option value="ST">ST-T abnormality</option>
+              <option value="LVH">LVH</option>
+            </select>
+          </div>
+          <div class="field"><label>Exercise-induced angina</label>
+            <select name="ExerciseAngina" required>
+              <option value="">Select</option>
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+          <div class="field"><label>ST slope</label>
+            <select name="ST_Slope" required>
+              <option value="">Select</option>
+              <option value="Up">Up</option>
+              <option value="Flat">Flat</option>
+              <option value="Down">Down</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" type="button" onclick="predict('heart')">Run heart screen</button>
+          <button class="btn btn-secondary" type="button" onclick="fillDemo('heart')">Demo: high risk</button>
+          <button class="btn btn-secondary" type="button" onclick="fillDemo('heart', 'low')">Demo: low risk</button>
+        </div>
+      </form>
+
+      <!-- STROKE -->
+      <form class="form-wrap" id="form-stroke" onsubmit="return false;">
+        <div class="form-meta">
+          <div>
+            <h3>Stroke inputs</h3>
+            <small>Demographic + vascular risk factors</small>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="field"><label>Age <span class="hint">(years)</span></label><input name="age" type="number" min="1" max="100" step="1" required placeholder="e.g. 55" /></div>
+          <div class="field"><label>Gender</label>
+            <select name="gender" required>
+              <option value="">Select</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field"><label>Hypertension</label>
+            <select name="hypertension" required>
+              <option value="">Select</option>
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+          <div class="field"><label>Heart disease history</label>
+            <select name="heart_disease" required>
+              <option value="">Select</option>
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+          <div class="field"><label>Ever married</label>
+            <select name="ever_married" required>
+              <option value="">Select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+          <div class="field"><label>Work type</label>
+            <select name="work_type" required>
+              <option value="">Select</option>
+              <option value="Private">Private</option>
+              <option value="Self-employed">Self-employed</option>
+              <option value="Govt_job">Government</option>
+              <option value="children">Children</option>
+              <option value="Never_worked">Never worked</option>
+            </select>
+          </div>
+          <div class="field"><label>Residence</label>
+            <select name="Residence_type" required>
+              <option value="">Select</option>
+              <option value="Urban">Urban</option>
+              <option value="Rural">Rural</option>
+            </select>
+          </div>
+          <div class="field"><label>Avg glucose <span class="hint">(mg/dL)</span></label><input name="avg_glucose_level" type="number" min="50" max="300" step="0.1" required placeholder="e.g. 95" /></div>
+          <div class="field"><label>BMI</label><input name="bmi" type="number" min="10" max="70" step="0.1" required placeholder="e.g. 27.5" /></div>
+          <div class="field"><label>Smoking status</label>
+            <select name="smoking_status" required>
+              <option value="">Select</option>
+              <option value="never smoked">Never smoked</option>
+              <option value="formerly smoked">Formerly smoked</option>
+              <option value="smokes">Smokes</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" type="button" onclick="predict('stroke')">Run stroke screen</button>
+          <button class="btn btn-secondary" type="button" onclick="fillDemo('stroke')">Demo: higher risk</button>
+          <button class="btn btn-secondary" type="button" onclick="fillDemo('stroke', 'low')">Demo: low risk</button>
+        </div>
+      </form>
+
+      <!-- HEPATITIS -->
+      <form class="form-wrap" id="form-hepatitis" onsubmit="return false;">
+        <div class="form-meta">
+          <div>
+            <h3>Hepatitis / liver panel</h3>
+            <small>Units match the HCV dataset (ALB/PROT g/L, enzymes U/L, CHOL mmol/L, CREA µmol/L)</small>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="field"><label>Age <span class="hint">(years)</span></label><input name="Age" type="number" min="18" max="90" step="1" required placeholder="e.g. 48" /></div>
+          <div class="field"><label>Sex</label>
+            <select name="Sex" required>
+              <option value="">Select</option>
+              <option value="1">Male</option>
+              <option value="0">Female</option>
+            </select>
+          </div>
+          <div class="field"><label>ALB <span class="hint">(g/L)</span></label><input name="ALB" type="number" min="10" max="90" step="0.1" required placeholder="e.g. 41.5" /></div>
+          <div class="field"><label>ALP <span class="hint">(U/L)</span></label><input name="ALP" type="number" min="10" max="500" step="0.1" required placeholder="e.g. 68" /></div>
+          <div class="field"><label>ALT <span class="hint">(U/L)</span></label><input name="ALT" type="number" min="1" max="400" step="0.1" required placeholder="e.g. 25" /></div>
+          <div class="field"><label>AST <span class="hint">(U/L)</span></label><input name="AST" type="number" min="5" max="400" step="0.1" required placeholder="e.g. 28" /></div>
+          <div class="field"><label>BIL <span class="hint">(µmol/L)</span></label><input name="BIL" type="number" min="0" max="250" step="0.1" required placeholder="e.g. 8" /></div>
+          <div class="field"><label>CHE <span class="hint">(U/L)</span></label><input name="CHE" type="number" min="1" max="20" step="0.01" required placeholder="e.g. 8.2" /></div>
+          <div class="field"><label>CHOL <span class="hint">(mmol/L)</span></label><input name="CHOL" type="number" min="1" max="12" step="0.01" required placeholder="e.g. 5.3" /></div>
+          <div class="field"><label>CREA <span class="hint">(µmol/L)</span></label><input name="CREA" type="number" min="5" max="500" step="0.1" required placeholder="e.g. 77" /></div>
+          <div class="field"><label>GGT <span class="hint">(U/L)</span></label><input name="GGT" type="number" min="4" max="700" step="0.1" required placeholder="e.g. 24" /></div>
+          <div class="field"><label>PROT <span class="hint">(g/L)</span></label><input name="PROT" type="number" min="40" max="100" step="0.1" required placeholder="e.g. 72" /></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" type="button" onclick="predict('hepatitis')">Run hepatitis screen</button>
+          <button class="btn btn-secondary" type="button" onclick="fillDemo('hepatitis')">Demo: high risk</button>
+          <button class="btn btn-secondary" type="button" onclick="fillDemo('hepatitis', 'low')">Demo: low risk</button>
+        </div>
+      </form>
+
+      <div class="result" id="result">
+        <h4 id="result-title">Result</h4>
+        <p id="result-text"></p>
+        <div class="meter" aria-hidden="true"><i id="result-meter"></i></div>
+      </div>
+
+      <p class="disclaimer">
+        Screening aid only — not a medical diagnosis. Probabilities come from models trained on public datasets and can be wrong. Seek professional care for clinical decisions.
+      </p>
+    </section>
+
+    <footer>© 2026 VitaScan · Flask disease risk screening</footer>
+  </div>
+
+  <script>
+    let selectedDisease = "heart";
+
+    const demos = {
+      heart: {
+        high: {
+          Age: 67, Sex: "1", RestingBP: 150, Cholesterol: 256, FastingBS: "1",
+          MaxHR: 120, Oldpeak: 2.8, ChestPainType: "TA", RestingECG: "ST",
+          ExerciseAngina: "1", ST_Slope: "Flat"
+        },
+        low: {
+          Age: 35, Sex: "0", RestingBP: 110, Cholesterol: 150, FastingBS: "0",
+          MaxHR: 160, Oldpeak: 0.1, ChestPainType: "NAP", RestingECG: "Normal",
+          ExerciseAngina: "0", ST_Slope: "Up"
+        }
+      },
+      stroke: {
+        high: {
+          age: 72, gender: "Male", hypertension: "1", heart_disease: "1",
+          ever_married: "1", work_type: "Private", Residence_type: "Urban",
+          avg_glucose_level: 210, bmi: 34, smoking_status: "smokes"
+        },
+        low: {
+          age: 30, gender: "Male", hypertension: "0", heart_disease: "0",
+          ever_married: "0", work_type: "Private", Residence_type: "Urban",
+          avg_glucose_level: 82, bmi: 21.5, smoking_status: "never smoked"
+        }
+      },
+      hepatitis: {
+        high: {
+          Age: 55, Sex: "1", ALB: 28, ALP: 180, ALT: 150, AST: 200,
+          BIL: 35, CHE: 4.0, CHOL: 3.8, CREA: 110, GGT: 160, PROT: 58
+        },
+        low: {
+          Age: 35, Sex: "1", ALB: 42, ALP: 65, ALT: 22, AST: 24,
+          BIL: 8, CHE: 8.5, CHOL: 5.2, CREA: 75, GGT: 22, PROT: 72
+        }
+      }
+    };
+
+    function selectDisease(disease) {
+      selectedDisease = disease;
+      document.querySelectorAll(".disease-card").forEach((card) => {
+        card.classList.toggle("active", card.dataset.disease === disease);
+      });
+      document.querySelectorAll(".form-wrap").forEach((form) => {
+        form.classList.toggle("visible", form.id === "form-" + disease);
+      });
+      hideResult();
+    }
+
+    function resetHome() {
+      selectDisease("heart");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function fillForm(formId, values) {
+      const form = document.getElementById(formId);
+      Object.entries(values).forEach(([key, val]) => {
+        const el = form.elements.namedItem(key);
+        if (el) el.value = val;
+      });
+    }
+
+    function fillDemo(disease = selectedDisease, risk = "high") {
+      selectDisease(disease);
+      fillForm("form-" + disease, demos[disease][risk]);
+      document.getElementById("workspace").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function num(v) {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function collectHeart(form) {
+      const cp = form.ChestPainType.value;
+      const ecg = form.RestingECG.value;
+      const slope = form.ST_Slope.value;
+      return {
+        Age: num(form.Age.value),
+        Sex: num(form.Sex.value),
+        RestingBP: num(form.RestingBP.value),
+        Cholesterol: num(form.Cholesterol.value),
+        FastingBS: num(form.FastingBS.value),
+        MaxHR: num(form.MaxHR.value),
+        Oldpeak: num(form.Oldpeak.value),
+        ChestPainType_ATA: cp === "ATA" ? 1 : 0,
+        ChestPainType_NAP: cp === "NAP" ? 1 : 0,
+        ChestPainType_TA: cp === "TA" ? 1 : 0,
+        RestingECG_Normal: ecg === "Normal" ? 1 : 0,
+        RestingECG_ST: ecg === "ST" ? 1 : 0,
+        ExerciseAngina_Y: num(form.ExerciseAngina.value),
+        ST_Slope_Flat: slope === "Flat" ? 1 : 0,
+        ST_Slope_Up: slope === "Up" ? 1 : 0
+      };
+    }
+
+    function collectStroke(form) {
+      const gender = form.gender.value;
+      const work = form.work_type.value;
+      const res = form.Residence_type.value;
+      const smoke = form.smoking_status.value;
+      const workTypes = ["Govt_job", "Never_worked", "Private", "Self-employed", "children"];
+      const features = {
+        age: num(form.age.value),
+        hypertension: num(form.hypertension.value),
+        heart_disease: num(form.heart_disease.value),
+        ever_married: num(form.ever_married.value),
+        avg_glucose_level: num(form.avg_glucose_level.value),
+        bmi: num(form.bmi.value),
+        gender_Male: gender === "Male" ? 1 : 0,
+        gender_Other: gender === "Other" ? 1 : 0,
+        Residence_type_Rural: res === "Rural" ? 1 : 0,
+        Residence_type_Urban: res === "Urban" ? 1 : 0,
+        smoking_status_Unknown: smoke === "Unknown" ? 1 : 0,
+        "smoking_status_formerly smoked": smoke === "formerly smoked" ? 1 : 0,
+        "smoking_status_never smoked": smoke === "never smoked" ? 1 : 0,
+        smoking_status_smokes: smoke === "smokes" ? 1 : 0
+      };
+      workTypes.forEach((w) => {
+        features["work_type_" + w] = work === w ? 1 : 0;
+      });
+      return features;
+    }
+
+    function collectHepatitis(form) {
+      return {
+        Age: num(form.Age.value),
+        Sex: num(form.Sex.value),
+        ALB: num(form.ALB.value),
+        ALP: num(form.ALP.value),
+        ALT: num(form.ALT.value),
+        AST: num(form.AST.value),
+        BIL: num(form.BIL.value),
+        CHE: num(form.CHE.value),
+        CHOL: num(form.CHOL.value),
+        CREA: num(form.CREA.value),
+        GGT: num(form.GGT.value),
+        PROT: num(form.PROT.value)
+      };
+    }
+
+    function hideResult() {
+      const box = document.getElementById("result");
+      box.classList.remove("show", "low", "high");
+    }
+
+    function showResult(payload) {
+      const box = document.getElementById("result");
+      const title = document.getElementById("result-title");
+      const text = document.getElementById("result-text");
+      const meter = document.getElementById("result-meter");
+      const risk = payload.raw?.risk || (payload.raw?.prediction === 1 ? "high" : "low");
+      const prob = payload.raw?.probability;
+
+      box.classList.remove("low", "high");
+      box.classList.add("show", risk === "high" ? "high" : "low");
+      title.textContent = risk === "high" ? "High risk indicated" : "Low risk indicated";
+      text.textContent = payload.prediction_text || "";
+      meter.style.width = prob == null ? "0%" : Math.max(4, Math.min(100, prob * 100)) + "%";
+    }
+
+    async function predict(disease) {
+      const form = document.getElementById("form-" + disease);
+      if (!form.reportValidity()) return;
+
+      const collectors = {
+        heart: collectHeart,
+        stroke: collectStroke,
+        hepatitis: collectHepatitis
+      };
+
+      const features = collectors[disease](form);
+      const resultBox = document.getElementById("result");
+      resultBox.classList.add("show");
+      resultBox.classList.remove("low", "high");
+      document.getElementById("result-title").textContent = "Analyzing…";
+      document.getElementById("result-text").textContent = "Sending features to the model.";
+      document.getElementById("result-meter").style.width = "8%";
+
+      try {
+        const res = await fetch("/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ disease, features })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          document.getElementById("result-title").textContent = "Prediction failed";
+          document.getElementById("result-text").textContent = data.error || res.statusText;
+          document.getElementById("result-meter").style.width = "0%";
+          return;
+        }
+        showResult(data);
+      } catch (err) {
+        document.getElementById("result-title").textContent = "Network error";
+        document.getElementById("result-text").textContent = String(err);
+        document.getElementById("result-meter").style.width = "0%";
+      }
+    }
+
+    selectDisease("heart");
+  </script>
+</body>
+</html>
